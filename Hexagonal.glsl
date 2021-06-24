@@ -10,7 +10,7 @@ float HexDist(vec2 p)
 
 vec4 HexCoords(vec2 uv) 
 {
-  vec2 r = vec2(1.0, 1.0);
+  vec2 r = vec2(1.0, 1.73);
     vec2 h = r * 0.5;
     vec2 a = mod(uv, r) - h;
     vec2 b = mod(uv - h, r) - h;
@@ -19,9 +19,10 @@ vec4 HexCoords(vec2 uv)
         gv = a;
     else
         gv = b;
-    gv = a;
     vec2 id = uv - gv;
-    return vec4(gv.x, gv.y, id.x, id.y);
+    float   x = atan(gv.x, gv.y);
+    float y = 0.5 - HexDist(gv);
+    return vec4(x, y, id.x, id.y);
 }
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
@@ -31,7 +32,11 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
     uv *= 5.0;
     
-    col.rg = HexCoords(uv).zw * 0.2;
+    vec4 hc = HexCoords(uv);
+    float c = smoothstep(0.05, 0.1, hc.y * sin(hc.z * hc.w + iTime));
+
+    col += c;
     
     fragColor = vec4(col, 1.0);
+
 }
