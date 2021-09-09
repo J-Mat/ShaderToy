@@ -1,24 +1,44 @@
+vec2 N(float angle) 
+{
+  return vec2(sin(angle), cos(angle));
+}
+
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec2 uv = (fragCoord.xy  - 0.5 * iResolution.xy) / iResolution.y;
     vec2 mouse = iMouse.xy / iResolution.xy;
-    uv *= 3.0;    
-    vec3 col = vec3(0);
+    uv *= 1.25;
 
     float pi = 3.145926;   
     
-     float angle =  pi * mouse.x;//mouse.x * 3.14159;//../ 2.0; 
-    vec2 n = vec2(sin(angle), cos(angle));
-    //uv.x = abs(uv.x);
-    //uv.x -= 0.5;
-     
-  //dot(uv, n)
-    uv -= n  *  min(dot(uv, n), 0.0) * 2.0;
-    col.rg += uv;
+    vec3 col = vec3(0);
+    uv.x = abs(uv.x);
+    uv.y += tan(5.0 / 6.0 * pi) * 0.5;
+
+    vec2 n = N(5.0 / 6.0 * pi);
+    float d = dot(uv - vec2(0.5, 0.0), n);
+    uv -= n * max(0.0, d) * 2.0;
     
 
-    float d = length(uv - vec2(clamp(uv.x, -1.0, 1.0), 0.0));
-    col += smoothstep(0.03, 0.00, d);
+    float angle =  (2.0 / 3.0) * pi;  //mouse.x * 3.14159;//../ 2.0; 
+
+    n =  N(2.0 / 3.0 * pi);
+    float scale = 1.0;
+    uv.x += 0.5;
+    for (int i = 0; i < 5 ; ++i)
+    {
+        uv *= 3.0;    
+        scale *= 3.0;
+        uv.x -= 1.5;
+
+        uv.x = abs(uv.x);
+        uv.x -= 0.5;
+        uv -= n * min(0.0, dot(uv, n)) * 2.0;
+    }
+    
+
+    d = length(uv - vec2(clamp(uv.x, -1.0, 1.0), 0.0));
+    col += smoothstep(1.0 / iResolution.y, 0.00, d / scale);
 
     //col.rg += uv; 
     
